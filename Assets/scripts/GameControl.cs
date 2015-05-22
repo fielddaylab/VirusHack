@@ -119,6 +119,9 @@ public class GameControl : MonoBehaviour {
 		timeUntilNext = 3.0f;
 	}
 	public void ProgressToNextNecleicAcid(){
+		foreach(NucleicAcid na in DNA){
+			na.transform.position += Vector3.left * 1.2f;
+		}
 		//detect amino acid
 		if((activeNucleicAcidIndex+1) % 3 == 0 && activeNucleicAcidIndex > 0){
 			
