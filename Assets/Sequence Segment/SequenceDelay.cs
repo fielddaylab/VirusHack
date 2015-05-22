@@ -3,19 +3,17 @@ using System.Collections;
 
 public class SequenceDelay : MonoBehaviour {
 
-    public Animation anim;
+    //public Animation anim;
+	public Animator animator;
 	public float delay = 1.0F;
-	public float speed = 0.1F;
+	public float speed = 1.0F;
 	public float start_time;
 	public bool started = false;
 
     void Start()
 	{
-        anim = GetComponent<Animation>();
-        foreach (AnimationState state in anim)
-		{
-            state.speed = speed;
-        }
+		animator = GetComponent<Animator>();
+		animator.speed = 0.0F;
 
 		start_time = Time.time + delay;
 	}
@@ -25,7 +23,7 @@ public class SequenceDelay : MonoBehaviour {
 	{
 		if(!started && Time.time > start_time)
 		{
-			anim.Play();
+			animator.speed = speed;
 			started = true;
 		}
 	}
