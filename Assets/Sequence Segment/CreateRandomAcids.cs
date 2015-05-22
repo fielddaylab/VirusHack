@@ -14,8 +14,8 @@ public class CreateRandomAcids : MonoBehaviour {
 		{
 			acid = (GameObject)Instantiate(spawn_object, spawn_location.transform.position, spawn_location.transform.rotation);
 			delayer = acid.GetComponentInChildren<SequenceDelay>();
-			delayer.delay = 1.5F * i;
-			delayer.speed = 1.0F;
+			delayer.delay = 0.6F * i;
+			delayer.speed = 0.05F;
 		}
 	}
 }
