@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class create_random_acids : MonoBehaviour {
+public class CreateRandomAcids : MonoBehaviour {
 	public GameObject spawn_location;
 	public GameObject spawn_object;
 
