@@ -24,7 +24,7 @@ public class GameControl : MonoBehaviour {
 	public float timeUntilNext;
 	public List<AminoAcid> aminoAcidChain;
 
-	public List<Protein> targetProteins; 
+	public Dictionary<string,Protein> targetProteins; 
 	public Protein proteinPrefab;
 
 
@@ -37,12 +37,13 @@ public class GameControl : MonoBehaviour {
 		CreateAminoAcid("UAU", "UAC", null, null, "Tyr");
 		CreateAminoAcid("UAA", "UAG", "UGA", null, "STOP");
 		//create protein
+		targetProteins = new Dictionary<string,Protein>();
 		CreateProtein("Poopy", "Phe Leu STOP");
-
+		CreateProtein("Test", "Phe STOP");
 		self = this;
 		DNA = new List<NucleicAcid>();
 		aminoAcidChain = new List<AminoAcid>();
-		targetProteins = new List<Protein>();
+		
 
 		//Construct dna sequence;
 		for(int i=0; i<sequence.Length; i++){
@@ -58,7 +59,7 @@ public class GameControl : MonoBehaviour {
 		Protein p = Instantiate(proteinPrefab) as Protein;
 		p.name = name;
 		p.aminoAcidsStr = aminoAcidSeq;
-		targetProteins.Add(p);
+		targetProteins.Add(p.aminoAcidsStr, p);
 	}
 	public NucleicAcid CreateNucleicAcid(char name){
 		NucleicAcid na = null;
@@ -131,7 +132,20 @@ public class GameControl : MonoBehaviour {
 				Debug.Log(aa.name);
 				if(aa.name == "STOP"){
 					//check protein
-
+					string aaStr = "";
+					for(int i=0; i < aminoAcidChain.Count; i++){
+						AminoAcid aminoAcid = aminoAcidChain[i];
+						if(i > 0){
+							aaStr = aaStr + " " +aminoAcid.name;
+						}else{
+							aaStr = aminoAcid.name;
+						}
+						
+					}//end for
+					Debug.Log(aaStr);
+					if(targetProteins.ContainsKey(aaStr)){
+						Debug.Log("Protein " + targetProteins[aaStr].name);
+					}
 				}
 			}
 			
