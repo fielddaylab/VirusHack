@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 public class Protein : MonoBehaviour {
 	public string name;
-	public List<AminoAcid> aminoAcid;
-
+	public string aminoAcidsStr;
 	// Use this for initialization
 	void Start () {
 	

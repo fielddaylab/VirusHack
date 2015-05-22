@@ -6,11 +6,13 @@ public class GameControl : MonoBehaviour {
 	public static GameControl self;
 	public Dictionary<string, AminoAcid> geneticCodeTable;
 	public AminoAcid aminoAcidPrefab;
-	public string sequence = "UUUAGCGCG";
+	public string sequence = "UAAUUAGCG";
 	public Material matA;
 	public Material matG;
 	public Material matU;
 	public Material matC;
+	public Material matS;
+
 	public NucleicAcid activeNucleicAcid;
 	public int activeNucleicAcidIndex;
 
@@ -21,15 +23,31 @@ public class GameControl : MonoBehaviour {
 
 	public List<NucleicAcid> DNA;
 
-	public float timeUntilNext ;
+	public float timeUntilNext;
+	public List<AminoAcid> aminoAcidChain;
+
+	public Dictionary<string,Protein> targetProteins; 
+	public Protein proteinPrefab;
+
+
+
 	void Awake(){
 		geneticCodeTable = new Dictionary<string, AminoAcid>();
 		CreateAminoAcid("UUU", "UUC", null, null, "Phe");
 		CreateAminoAcid("UUA", "UUG", null, null, "Leu");
 		CreateAminoAcid("UCU", "UCC", "UCA", "UCG", "Ser");
 		CreateAminoAcid("UAU", "UAC", null, null, "Tyr");
+		//CreateAminoAcid("UAA", "UAG", "UGA", null, "STOP");
+		CreateAminoAcid("SSS", null, null, null, "STOP");
+		//create protein
+		targetProteins = new Dictionary<string,Protein>();
+		CreateProtein("Poopy", "Phe Leu STOP");
+		CreateProtein("Test", "Phe STOP");
 		self = this;
 		DNA = new List<NucleicAcid>();
+		aminoAcidChain = new List<AminoAcid>();
+		
+
 		//Construct dna sequence;
 		for(int i=0; i<sequence.Length; i++){
 			char c = sequence[i];
@@ -39,7 +57,13 @@ public class GameControl : MonoBehaviour {
 			}
 		}
 
-	}	
+	}
+	public void CreateProtein(string name, string aminoAcidSeq){
+		Protein p = Instantiate(proteinPrefab) as Protein;
+		p.name = name;
+		p.aminoAcidsStr = aminoAcidSeq;
+		targetProteins.Add(p.aminoAcidsStr, p);
+	}
 	public NucleicAcid CreateNucleicAcid(char name){
 		NucleicAcid na = null;
 		if(name == 'A'){
@@ -72,39 +96,83 @@ public class GameControl : MonoBehaviour {
 		aa.codons = new List<string>();
 		if(codon0 != null){
 			aa.codons.Add(codon0);
+			geneticCodeTable.Add(codon0,aa);
 		}
 		if(codon1 != null){
 			aa.codons.Add(codon1);
+			geneticCodeTable.Add(codon1,aa);
 		}
 		if(codon2 != null){
 			aa.codons.Add(codon2);
+			geneticCodeTable.Add(codon2,aa);
 		}
 		if(codon3 != null){
 			aa.codons.Add(codon3);
+			geneticCodeTable.Add(codon3,aa);
 		}
 	}
+
 	// Use this for initialization
 	void Start () {
 		activeNucleicAcid = DNA[0];
 		activeNucleicAcidIndex = 0;
 		timeUntilNext = 3.0f;
 	}
-	
+	public void ProgressToNextNecleicAcid(){
+		//detect amino acid
+		if((activeNucleicAcidIndex+1) % 3 == 0 && activeNucleicAcidIndex > 0){
+			
+			NucleicAcid na0 = DNA[activeNucleicAcidIndex-2];
+			NucleicAcid na1 = DNA[activeNucleicAcidIndex-1];
+			//Look up in encoding table
+			string codon = na0.name.ToString() 
+				+ na1.name.ToString() 
+				+ activeNucleicAcid.name.ToString();
+			Debug.Log(codon);
+			if(geneticCodeTable.ContainsKey(codon)){
+				AminoAcid aa = geneticCodeTable[codon];
+				aminoAcidChain.Add(aa);
+				Debug.Log(aa.name);
+				if(aa.name == "STOP"){
+					//check protein
+					string aaStr = "";
+					for(int i=0; i < aminoAcidChain.Count; i++){
+						AminoAcid aminoAcid = aminoAcidChain[i];
+						if(i > 0){
+							aaStr = aaStr + " " +aminoAcid.name;
+						}else{
+							aaStr = aminoAcid.name;
+						}
+						
+					}//end for
+					Debug.Log(aaStr);
+					if(targetProteins.ContainsKey(aaStr)){
+						Debug.Log("Protein " + targetProteins[aaStr].name);
+					}
+				}
+			}
+			
+		}
+		
+		activeNucleicAcidIndex += 1;
+
+		if(activeNucleicAcidIndex < DNA.Count){
+			activeNucleicAcid = DNA[activeNucleicAcidIndex];
+		}else{
+		//end of game
+		}
+	}
 	// Update is called once per frame
 	void Update () {
 		if(timeUntilNext <= 0f){
 			timeUntilNext = 3.0f;
-			activeNucleicAcidIndex += 1;
-			if(activeNucleicAcidIndex < DNA.Count){
-				activeNucleicAcid = DNA[activeNucleicAcidIndex];
-			}else{
-			//end of game
-			}
+			ProgressToNextNecleicAcid();
 			return;
 		}
 		timeUntilNext -= Time.deltaTime;
 		char newType = activeNucleicAcid.name;
 		bool keypressed = false;
+		/*
 		if(Input.GetKeyDown("a")){
 			newType = 'A';
 			keypressed = true;
@@ -117,25 +185,36 @@ public class GameControl : MonoBehaviour {
 		}else if(Input.GetKeyDown("c")){
 			newType = 'C';
 			keypressed = true;
+			*/
+		if(Input.GetKeyDown("s")){
+			//put a stop sign
+			newType = 'S';
+			keypressed = true;
+		}else if(Input.GetKeyDown("w")){
+			char currentActiveType = activeNucleicAcid.name;
+			if(currentActiveType == 'A'){
+				newType = 'U';
+			}else if(currentActiveType == 'U'){
+				newType = 'G';
+			}else if(currentActiveType == 'G'){
+				newType = 'C';
+			}else if(currentActiveType == 'C'){
+				newType = 'A';
+			}
+			
+			keypressed = true;
 		}else if(Input.GetKeyDown("space")){
 			activeNucleicAcidIndex += 1;
 			timeUntilNext = 3.0f;
-			if(activeNucleicAcidIndex < DNA.Count){
-				activeNucleicAcid = DNA[activeNucleicAcidIndex];
-			}else{
-				//end of game
-			}
+			ProgressToNextNecleicAcid();
+			return;
 		}
 		if(activeNucleicAcid != null && keypressed){
 			activeNucleicAcid.ChangeTypeTo(newType);
 			//fast forward to next one
-			activeNucleicAcidIndex += 1;
 			timeUntilNext = 3.0f;
-			if(activeNucleicAcidIndex < DNA.Count){
-				activeNucleicAcid = DNA[activeNucleicAcidIndex];
-			}else{
-			//end of game
-			}
+			ProgressToNextNecleicAcid();
+			return;
 		}
 		
 	}
