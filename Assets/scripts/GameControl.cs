@@ -6,11 +6,13 @@ public class GameControl : MonoBehaviour {
 	public static GameControl self;
 	public Dictionary<string, AminoAcid> geneticCodeTable;
 	public AminoAcid aminoAcidPrefab;
-	public string sequence = "UUUAGCGCG";
+	public string sequence = "UAAUUAGCG";
 	public Material matA;
 	public Material matG;
 	public Material matU;
 	public Material matC;
+	public Material matS;
+
 	public NucleicAcid activeNucleicAcid;
 	public int activeNucleicAcidIndex;
 
@@ -35,7 +37,8 @@ public class GameControl : MonoBehaviour {
 		CreateAminoAcid("UUA", "UUG", null, null, "Leu");
 		CreateAminoAcid("UCU", "UCC", "UCA", "UCG", "Ser");
 		CreateAminoAcid("UAU", "UAC", null, null, "Tyr");
-		CreateAminoAcid("UAA", "UAG", "UGA", null, "STOP");
+		//CreateAminoAcid("UAA", "UAG", "UGA", null, "STOP");
+		CreateAminoAcid("SSS", null, null, null, "STOP");
 		//create protein
 		targetProteins = new Dictionary<string,Protein>();
 		CreateProtein("Poopy", "Phe Leu STOP");
@@ -169,6 +172,7 @@ public class GameControl : MonoBehaviour {
 		timeUntilNext -= Time.deltaTime;
 		char newType = activeNucleicAcid.name;
 		bool keypressed = false;
+		/*
 		if(Input.GetKeyDown("a")){
 			newType = 'A';
 			keypressed = true;
@@ -180,6 +184,24 @@ public class GameControl : MonoBehaviour {
 			keypressed = true;
 		}else if(Input.GetKeyDown("c")){
 			newType = 'C';
+			keypressed = true;
+			*/
+		if(Input.GetKeyDown("s")){
+			//put a stop sign
+			newType = 'S';
+			keypressed = true;
+		}else if(Input.GetKeyDown("w")){
+			char currentActiveType = activeNucleicAcid.name;
+			if(currentActiveType == 'A'){
+				newType = 'U';
+			}else if(currentActiveType == 'U'){
+				newType = 'G';
+			}else if(currentActiveType == 'G'){
+				newType = 'C';
+			}else if(currentActiveType == 'C'){
+				newType = 'A';
+			}
+			
 			keypressed = true;
 		}else if(Input.GetKeyDown("space")){
 			activeNucleicAcidIndex += 1;

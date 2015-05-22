@@ -25,6 +25,8 @@ public class NucleicAcid : MonoBehaviour {
 			GetComponent<MeshRenderer>().material = GameControl.self.matU;
 		} else if(newName == 'C'){
 			GetComponent<MeshRenderer>().material = GameControl.self.matC;
+		} else if(newName == 'S'){
+			GetComponent<MeshRenderer>().material = GameControl.self.matS;
 		}
 	}
 }
